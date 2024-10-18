@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum Mapping {
 	SKEW,
@@ -9,7 +7,8 @@ public enum Mapping {
 }
 
 [ExecuteInEditMode]
-public class SkewQuad : MonoBehaviour {
+public class SkewQuad : MonoBehaviour 
+{
 	public Mapping mapping = Mapping.SKEW;
 	public Vector3 TopLeft;
 	public Vector3 TopRight;
@@ -19,12 +18,14 @@ public class SkewQuad : MonoBehaviour {
 	Mesh mesh;
 	MeshFilter mf;
 
-	void Start () {
+	void Start () 
+	{
 		mesh = new Mesh();
 		mf = GetComponent<MeshFilter>();
 	}
 	
-	public void UpdateMeshAndTexture() {
+	public void UpdateMeshAndTexture() 
+	{
 		bool updated = false;
 		// Build the Quad
 		Vector3[] vertices = new Vector3[4] {
@@ -58,7 +59,6 @@ public class SkewQuad : MonoBehaviour {
 			new Vector2(0,1),
 		};
 
-
 		Vector2[] uv2 = new Vector2[4] {
 			new Vector2(1,0),
 			new Vector2(1,0),
@@ -75,27 +75,27 @@ public class SkewQuad : MonoBehaviour {
 				float bx = vertices[3].x - vertices[1].x;
 				float by = vertices[3].y - vertices[1].y;
 
-				float cross = (ax * by) - (ay * bx);
+				float cross = (ax * by) - (ay * bx);//向量02，13所构成的平行四边形的面积
 
 				// Only skew if it's possible (ie. clockwise tri vertices and convex shape)
 				if (cross != 0 && mapping == Mapping.SKEW) {
 					float cy = vertices[0].y - vertices[1].y;
-					float cx = vertices[0].x - vertices[1].x;
+					float cx = vertices[0].x - vertices[1].x;//向量10
 
-					float s = (ax * cy - ay * cx) / cross;
+					float s = (ax * cy - ay * cx) / cross;//向量02，10所构成的平行四边形的面积 / 向量02，13所构成的平行四边形的面积
 			
 					if (s > 0 && s < 1) {
-						float t = (bx * cy - by * cx) / cross;
+						float t = (bx * cy - by * cx) / cross;//向量13， 10所构成的平行四边形的面积 / 向量02，13所构成的平行四边形的面积
 
 						if (t > 0 && t < 1) {
 							float q0 = 1 / (1-t);
 							float q1 = 1 / (1-s);
 							float q2 = 1 / t;
 							float q3 = 1 / s;
-							uv[0] = new Vector2(uv[0].x * q0, uv[0].y * q0);
-							uv[1] = new Vector2(uv[1].x * q1, uv[1].y * q1);
-							uv[2] = new Vector2(uv[2].x * q2, uv[2].y * q2);
-							uv[3] = new Vector2(uv[3].x * q3, uv[3].y * q3);
+							uv[0] = uv[0] * q0;
+							uv[1] = uv[1] * q1;
+							uv[2] = uv[2] * q2;
+							uv[3] = uv[3] * q3;
 							uv2[0] = new Vector2(q0, 0);
 							uv2[1] = new Vector2(q1, 0);
 							uv2[2] = new Vector2(q2, 0);
@@ -115,12 +115,12 @@ public class SkewQuad : MonoBehaviour {
 				uv[2] = vertices[2];
 				uv[3] = vertices[3];
 		
-				uv2 = new Vector2[4] {
-					new Vector2(1,0),
-					new Vector2(1,0),
-					new Vector2(1,0),
-					new Vector2(1,0),
-				};
+				// uv2 = new Vector2[4] {
+				// 	new Vector2(1,0),
+				// 	new Vector2(1,0),
+				// 	new Vector2(1,0),
+				// 	new Vector2(1,0),
+				// };
 
 			break;
 			case Mapping.AFFINE:
